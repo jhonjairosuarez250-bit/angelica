@@ -3,7 +3,7 @@ import requests
 import datetime
 
 # === CONFIGURACIÓN DE N8N ===
-N8N_WEBHOOK_URL = "https://n8n.srv1491231.hstgr.cloud/webhook/formulario-futbol"
+N8N_WEBHOOK_URL = "https://n8n.srv1491231.hstgr.cloud/webhook-test/formulario-futbol"
 
 # === MAGIA DE DISEÑO (CSS) PARA EL BOTÓN ===
 st.markdown("""
@@ -22,14 +22,17 @@ div.stButton > button:first-child:hover {
 """, unsafe_allow_html=True)
 
 # === INTERFAZ WEB ===
-st.title("ex.angelica")
+st.title("🤸‍♂️⚽️ Datos de materia prima")
 st.write("Ingreso de estadísticas para el modelo de predicción")
 
 col_izq, col_der = st.columns(2)
 
+# LISTA COMPLETA LIGA BETPLAY (ESTRICTAMENTE SIN TILDES PARA PROTEGER LA BASE DE DATOS)
 equipos_lista = [
-    "Nacional", "America", "Millonarios", "Santa Fe", "Junior", 
-    "Cali", "Once Caldas", "Pereira", "Medellin", "Tolima"
+    "Aguilas Doradas", "Alianza", "America", "Boyaca Chico", "Bucaramanga", 
+    "Cali", "medellin", "Envigado", "Fortaleza", "Jaguares", 
+    "Junior", "inter de bogota", "Millonarios", "Nacional", "Once Caldas", 
+    "Pasto", "Patriotas", "Pereira", "Santa Fe", "Tolima"
 ]
 
 # --- COLUMNA LOCAL ---
@@ -55,13 +58,9 @@ with col_der:
 st.write("---") 
 
 # --- CONDICIONES DEL PARTIDO ---
-col_inf_izq, col_inf_der = st.columns(2)
-
-with col_inf_izq:
-    arbitro = st.text_input("Nombre del Árbitro:")
-
-with col_inf_der:
-    temperatura = st.number_input("Temperatura (°C):", step=1)
+st.subheader("Condiciones")
+arbitro = st.text_input("Nombre del Árbitro:")
+# Nota de arquitectura: La variable Temperatura fue eliminada de esta sección.
 
 st.write("---") 
 
@@ -86,23 +85,28 @@ if st.button("Enviar"):
     if not equipo_l:
         st.warning("⚠️ Por favor, selecciona un equipo local.")
     else:
-        # Paquete de datos actualizado
+        # Paquete de datos actualizado (Sin campo de temperatura)
         datos_para_n8n = {
-            "encabezado": "ex.angelica",
+            "encabezado": "Datos de materia prima",
             "equipo_local": equipo_l,
             "fecha": fecha.strftime("%d/%m/%Y"),
             "arbitro": arbitro,
-            "temperatura": temperatura,
+            
+            # Datos Local
             "gol_local": gol_l,
             "corners_local": corners_l,
             "tiros_arco_local": tiros_arco_l,
             "amarillas_local": amarillas_l,
             "rojas_local": rojas_l,
+            
+            # Datos Rival
             "gol_visitante": gol_v,
             "corners_visitante": corners_v,
             "tiros_arco_visitante": tiros_arco_v,
             "amarillas_visitante": amarillas_v,
             "rojas_visitante": rojas_v,
+            
+            # Datos de Evaluación Nuevos
             "ronda": ronda,
             "valla_invicta": valla_invicta,
             "condicion": condicion,
@@ -116,7 +120,7 @@ if st.button("Enviar"):
         try:
             respuesta = requests.post(N8N_WEBHOOK_URL, json=datos_para_n8n, headers=headers)
             if respuesta.status_code == 200:
-                st.success("✅ ¡Datos enviados correctamente a n8n!")
+                st.success("✅ ¡Datos enviados correctamente!")
             else:
                 st.error(f"❌ n8n respondió con un error: {respuesta.status_code}")
         except requests.exceptions.RequestException as e:
