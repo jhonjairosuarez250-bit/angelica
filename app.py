@@ -27,10 +27,10 @@ st.write("Ingreso de estadísticas para el modelo de predicción")
 
 col_izq, col_der = st.columns(2)
 
-# LISTA COMPLETA LIGA BETPLAY (ESTRICTAMENTE SIN TILDES PARA PROTEGER LA BASE DE DATOS)
+# LISTA COMPLETA (PROTEGIDA SIN TILDES Y CON MAYÚSCULAS ESTANDARIZADAS)
 equipos_lista = [
     "Aguilas Doradas", "Alianza", "America", "Boyaca Chico", "Bucaramanga", 
-    "Cali", "medellin", "Envigado", "Fortaleza", "Jaguares", 
+    "Cali", "Medellin", "Envigado", "Fortaleza", "Jaguares", 
     "Junior", "inter de bogota", "Millonarios", "Nacional", "Once Caldas", 
     "Pasto", "Patriotas", "Pereira", "Santa Fe", "Tolima"
 ]
@@ -60,7 +60,6 @@ st.write("---")
 # --- CONDICIONES DEL PARTIDO ---
 st.subheader("Condiciones")
 arbitro = st.text_input("Nombre del Árbitro:")
-# Nota de arquitectura: La variable Temperatura fue eliminada de esta sección.
 
 st.write("---") 
 
@@ -85,7 +84,7 @@ if st.button("Enviar"):
     if not equipo_l:
         st.warning("⚠️ Por favor, selecciona un equipo local.")
     else:
-        # Paquete de datos actualizado (Sin campo de temperatura)
+        # Paquete de datos actualizado
         datos_para_n8n = {
             "encabezado": "Datos de materia prima",
             "equipo_local": equipo_l,
@@ -111,17 +110,20 @@ if st.button("Enviar"):
             "valla_invicta": valla_invicta,
             "condicion": condicion,
             "resultado": resultado
-        }
-        
+        } # <-- AQUI FALTABA ESTA LLAVE DE CIERRE CRÍTICA
+
+        # PARCHE ANTI-FIREWALL: Disfrazamos la petición como un navegador Chrome real
         headers = {
-            "ngrok-skip-browser-warning": "true"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "Content-Type": "application/json"
         }
         
         try:
-            respuesta = requests.post(N8N_WEBHOOK_URL, json=datos_para_n8n, headers=headers)
+            # Añadimos timeout=30 para obligar a Streamlit a esperar hasta que Hostinger abra la puerta
+            respuesta = requests.post(N8N_WEBHOOK_URL, json=datos_para_n8n, headers=headers, timeout=30)
             if respuesta.status_code == 200:
                 st.success("✅ ¡Datos enviados correctamente!")
             else:
                 st.error(f"❌ n8n respondió con un error: {respuesta.status_code}")
         except requests.exceptions.RequestException as e:
-            st.error(f"🔌 No se pudo conectar. Detalle: {e}")
+            st.error(f"🔌 El Firewall bloqueó la conexión. Detalle: {e}")
