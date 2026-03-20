@@ -3,7 +3,7 @@ import requests
 import datetime
 
 # === CONFIGURACIÓN DE N8N ===
-N8N_WEBHOOK_URL = "https://n8n.srv1491231.hstgr.cloud/webhook/formulario-futbol"
+N8N_WEBHOOK_URL = "N8N_WEBHOOK_URL = "https://n8n.srv1491231.hstgr.cloud/webhook/formulario-futbol/""
 
 # === MAGIA DE DISEÑO (CSS) PARA EL BOTÓN ===
 st.markdown("""
@@ -112,18 +112,21 @@ if st.button("Enviar"):
             "resultado": resultado
         } # <-- AQUI FALTABA ESTA LLAVE DE CIERRE CRÍTICA
 
-        # PARCHE ANTI-FIREWALL: Disfrazamos la petición como un navegador Chrome real
+       # PARCHE ANTI-FIREWALL V2: Disfraz + Cierre de Conexión
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Connection": "close"
         }
         
         try:
-            # Añadimos timeout=30 para obligar a Streamlit a esperar hasta que Hostinger abra la puerta
-            respuesta = requests.post(N8N_WEBHOOK_URL, json=datos_para_n8n, headers=headers, timeout=30)
+            # verify=False obliga a Python a ignorar bloqueos por certificados SSL
+            # timeout reducido a 15 para no esperar innecesariamente
+            respuesta = requests.post(N8N_WEBHOOK_URL, json=datos_para_n8n, headers=headers, timeout=15, verify=False)
             if respuesta.status_code == 200:
                 st.success("✅ ¡Datos enviados correctamente!")
             else:
                 st.error(f"❌ n8n respondió con un error: {respuesta.status_code}")
         except requests.exceptions.RequestException as e:
-            st.error(f"🔌 El Firewall bloqueó la conexión. Detalle: {e}")
+            st.error(f"🔌 Hostinger sigue bloqueando la entrada. Detalle: {e}")
+    
