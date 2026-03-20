@@ -3,7 +3,7 @@ import requests
 import datetime
 
 # === CONFIGURACIÓN DE N8N ===
-N8N_WEBHOOK_URL = "N8N_WEBHOOK_URL = "https://n8n.srv1491231.hstgr.cloud/webhook/formulario-futbol/""
+N8N_WEBHOOK_URL = "N8N_WEBHOOK_URL = "N8N_WEBHOOK_URL = "https://n8n.srv1491231.hstgr.cloud/webhook/formulario-futbol/"""
 
 # === MAGIA DE DISEÑO (CSS) PARA EL BOTÓN ===
 st.markdown("""
